@@ -9,19 +9,19 @@ package com.example.addon.gui;
 import com.example.addon.systems.Enemies;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.WindowScreen;
+import meteordevelopment.meteorclient.gui.widgets.containers.WHorizontalList;
 import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
 import meteordevelopment.meteorclient.gui.widgets.input.WTextBox;
-import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WMinus;
+import meteordevelopment.meteorclient.gui.widgets.pressable.WPlus;
 import meteordevelopment.meteorclient.utils.misc.NbtUtils;
 import meteordevelopment.meteorclient.utils.network.Http;
 import meteordevelopment.meteorclient.utils.network.MeteorExecutor;
-import meteordevelopment.meteorclient.utils.render.color.Color;
-import net.minecraft.client.gui.screen.Screen;
+import meteordevelopment.meteorclient.utils.player.ChatUtils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
+
+import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class EnemiesScreen extends WindowScreen {
     public EnemiesScreen(GuiTheme theme) {
@@ -31,54 +31,59 @@ public class EnemiesScreen extends WindowScreen {
     @Override
     public void initWidgets() {
         WTable table = add(theme.table()).expandX().minWidth(400).widget();
+        initTable(table);
 
-        // Title
-        table.add(theme.label("Enemies")).expandCellX();
-        table.row();
+        add(theme.horizontalSeparator()).expandX();
 
-        table.add(theme.horizontalSeparator()).expandX();
-        table.row();
+        // New enemy input (styled like friends)
+        WHorizontalList list = add(theme.horizontalList()).expandX().widget();
 
-        // Add enemy input
-        WTextBox nameInput = table.add(theme.textBox("")).minWidth(200).expandX().widget();
-        nameInput.setFocused(true);
+        WTextBox nameW = list.add(theme.textBox("", (text, c) -> c != ' ')).expandX().widget();
+        nameW.setFocused(true);
 
-        WButton add = table.add(theme.button("Add")).widget();
-        table.row();
-
+        WPlus add = list.add(theme.plus()).widget();
         add.action = () -> {
-            String name = nameInput.get().trim();
+            String name = nameW.get().trim();
             if (name.isEmpty()) return;
 
             MeteorExecutor.execute(() -> {
                 UUID uuid = playerNameToUuid(name);
                 if (uuid == null) {
-                    error("Failed to find player UUID for '%s'.", name);
+                    ChatUtils.error(String.format("Failed to find player UUID for '%s'.", name));
                     return;
                 }
 
                 Enemies.Enemy enemy = new Enemies.Enemy(name, uuid);
-                if (!Enemies.get().add(enemy)) {
-                    error("Player '%s' is already in your enemies list.", name);
+                if (Enemies.get().add(enemy)) {
+                    nameW.set("");
+                    mc.execute(this::reload);
+                    ChatUtils.info(String.format("Added '%s' to enemies.", name));
                 } else {
-                    info("Added '%s' to enemies.", name);
-                    nameInput.set("");
-                    reload();
+                    ChatUtils.error(String.format("Player '%s' is already in your enemies list.", name));
                 }
             });
         };
 
-        // Enemies list
-        table.add(theme.horizontalSeparator()).expandX();
-        table.row();
+        enterAction = add.action;
+    }
+
+    private void initTable(WTable table) {
+        table.clear();
+        if (Enemies.get().isEmpty()) return;
 
         for (Enemies.Enemy enemy : Enemies.get().getAll()) {
-            table.add(theme.label(enemy.name)).expandCellX();
+            // Player head placeholder (same width as friends system)
+            table.add(theme.label("👤")).widget(); // Player icon placeholder
+            
+            // Enemy name (styled like friends system)
+            table.add(theme.label(enemy.name)).expandCellX().widget();
 
-            WMinus remove = table.add(theme.minus()).widget();
+            // Remove button (red minus)
+            WMinus remove = table.add(theme.minus()).right().widget();
             remove.action = () -> {
                 Enemies.get().remove(enemy);
                 reload();
+                ChatUtils.info(String.format("Removed '%s' from enemies.", enemy.name));
             };
 
             table.row();
@@ -105,5 +110,15 @@ public class EnemiesScreen extends WindowScreen {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    @Override
+    public boolean toClipboard() {
+        return NbtUtils.toClipboard(Enemies.get());
+    }
+
+    @Override
+    public boolean fromClipboard() {
+        return NbtUtils.fromClipboard(Enemies.get());
     }
 }

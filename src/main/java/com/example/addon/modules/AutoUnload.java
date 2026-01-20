@@ -1,10 +1,8 @@
 package com.example.addon.modules;
 
 import com.example.addon.LoggerAddon;
-import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.item.ItemStack;
 
@@ -73,7 +71,7 @@ public class AutoUnload extends Module {
     private final Setting<Boolean> craftEmerald = sgItems.add(new BoolSetting.Builder().name("emerald").defaultValue(true).build());
 
     // Modules to disable while operating (Baritone / AutoRespawn etc.)
-    private final Setting<List<Class<? extends Module>>> modulesToDisable = sgBehavior.add(new ModuleListSetting.Builder()
+    private final Setting<List<Module>> modulesToDisable = sgBehavior.add(new ModuleListSetting.Builder()
         .name("modules-to-disable")
         .description("Modules to disable while AutoUnload is operating (e.g., Baritone)")
         .build()
@@ -91,8 +89,7 @@ public class AutoUnload extends Module {
         if (pauseBaritone.get()) {
             // Disable configured modules to pause Baritone/movement
             disabledModules.clear();
-            for (Class<? extends Module> cls : modulesToDisable.get()) {
-                Module m = Modules.get().get(cls);
+            for (Module m : modulesToDisable.get()) {
                 if (m != null && m.isActive()) {
                     m.toggle();
                     disabledModules.add(m);
@@ -113,41 +110,5 @@ public class AutoUnload extends Module {
         disabledModules.clear();
         isOperating = false;
         info("AutoUnload stopped.");
-    }
-
-    @EventHandler
-    private void onTick(TickEvent.Post event) {
-        if (!isOperating || mc.player == null || mc.currentScreen != null) return;
-
-        // High-level flow:
-        // 1) Scan inventory for items matching configured families
-        // 2) If shulker boxes present in inventory, move items into them
-        // 3) If craftBlocks enabled and at a crafting table (or place one), craft blocks from items
-        // 4) Resume modules and finish
-
-        // NOTE: Actual inventory interactions require careful handling of window/container clicks
-        // and should be implemented with Meteor's inventory helpers. For safety, this initial
-        // implementation only logs what it would do and demonstrates pause/resume behavior.
-        List<ItemStack> found = new ArrayList<>();
-
-        // Scan inventory (placeholder)
-        for (int i = 0; i < mc.player.getInventory().size(); i++) {
-            ItemStack stack = mc.player.getInventory().getStack(i);
-            if (stack.isEmpty()) continue;
-            // TODO: match stack against configured item families (coal, iron, etc.)
-            // If matched and not in protectedSlots, add to `found`
-            // For now we only log the stacks
-            String name = stack.getName().getString();
-            if (!name.isEmpty()) {
-                info("Found stack in slot " + i + ": " + name + " x" + stack.getCount());
-            }
-        }
-
-        // TODO: Implement shulker filling and crafting logic here.
-
-        // Finish operation for this safe scaffold
-        info("AutoUnload scan complete (scaffold). Implement shulker/crafting operations in code to enable actual behavior.");
-        // Re-enable paused modules immediately since we didn't actually move anything
-        onDeactivate();
     }
 }

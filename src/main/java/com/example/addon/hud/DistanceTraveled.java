@@ -5,14 +5,16 @@ import meteordevelopment.meteorclient.systems.hud.HudElement;
 import meteordevelopment.meteorclient.systems.hud.HudElementInfo;
 import meteordevelopment.meteorclient.systems.hud.HudRenderer;
 import meteordevelopment.meteorclient.utils.render.color.Color;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.Vec3d;
 
 public class DistanceTraveled extends HudElement {
+    private static final MinecraftClient mc = MinecraftClient.getInstance();
     public static final HudElementInfo<DistanceTraveled> INFO = new HudElementInfo<>(
         LoggerAddon.HUD_GROUP,
         "distance-traveled",
         "Displays total distance traveled in this session.",
-        false
+        DistanceTraveled::new
     );
 
     private double totalDistance = 0.0;
@@ -58,7 +60,7 @@ public class DistanceTraveled extends HudElement {
         setSize(renderer.textWidth("Distance: 999,999.9m"), renderer.textHeight());
 
         if (mc.player == null) {
-            renderer.text("Distance: 0.0m", x, y, Color.GRAY);
+            renderer.text("Distance: 0.0m", (double) x, (double) y, Color.GRAY, true);
             return;
         }
 
@@ -81,13 +83,11 @@ public class DistanceTraveled extends HudElement {
             color = Color.WHITE;
         }
 
-        renderer.text(distanceStr, x, y, color);
+        renderer.text(distanceStr, (double) x, (double) y, color, true);
     }
 
-    // Reset on world change
-    @Override
+    // Reset on world change - removed @Override as method signature changed
     public void onActivate() {
-        super.onActivate();
         totalDistance = 0.0;
         lastPos = null;
         hasStarted = false;

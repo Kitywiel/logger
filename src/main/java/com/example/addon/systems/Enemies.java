@@ -12,16 +12,21 @@ import net.minecraft.nbt.NbtList;
 import java.util.*;
 
 public class Enemies extends System<Enemies> {
-    private static final Enemies INSTANCE = new Enemies();
+    private static Enemies INSTANCE;
 
     private final Map<UUID, Enemy> enemies = new HashMap<>();
 
-    private Enemies() {
+    public Enemies() {
         super("enemies");
+        INSTANCE = this;
     }
 
     public static Enemies get() {
-        return Systems.get(Enemies.class);
+        if (INSTANCE == null) {
+            INSTANCE = new Enemies();
+            INSTANCE.load();
+        }
+        return INSTANCE;
     }
 
     @Override
@@ -125,13 +130,13 @@ public class Enemies extends System<Enemies> {
 
         public Enemy(NbtCompound tag) {
             name = tag.getString("name");
-            id = NbtUtils.uuidFromNbt(tag.getCompound("id"));
+            id = tag.getUuid("id");
         }
 
         public NbtCompound toTag() {
             NbtCompound tag = new NbtCompound();
             tag.putString("name", name);
-            tag.put("id", NbtUtils.uuidToNbt(id));
+            tag.putUuid("id", id);
             return tag;
         }
 

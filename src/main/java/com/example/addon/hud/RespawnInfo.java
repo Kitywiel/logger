@@ -7,14 +7,16 @@ import meteordevelopment.meteorclient.systems.hud.HudElementInfo;
 import meteordevelopment.meteorclient.systems.hud.HudRenderer;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.utils.render.color.Color;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.BlockPos;
 
 public class RespawnInfo extends HudElement {
+    private static final MinecraftClient mc = MinecraftClient.getInstance();
     public static final HudElementInfo<RespawnInfo> INFO = new HudElementInfo<>(
         LoggerAddon.HUD_GROUP,
         "respawn-info",
         "Displays distance until next respawn placement.",
-        false
+        RespawnInfo::new
     );
 
     public RespawnInfo() {
@@ -28,12 +30,12 @@ public class RespawnInfo extends HudElement {
         AutoRespawn autoRespawn = Modules.get().get(AutoRespawn.class);
         
         if (autoRespawn == null || !autoRespawn.isActive()) {
-            renderer.text("AutoRespawn: Disabled", x, y, Color.GRAY);
+            renderer.text("AutoRespawn: Disabled", (double) x, (double) y, Color.GRAY, true);
             return;
         }
 
         if (mc.player == null) {
-            renderer.text("AutoRespawn: No Player", x, y, Color.GRAY);
+            renderer.text("AutoRespawn: No Player", (double) x, (double) y, Color.GRAY, true);
             return;
         }
 
@@ -42,7 +44,7 @@ public class RespawnInfo extends HudElement {
         int respawnDistance = autoRespawn.getRespawnDistance() * 1000; // Multiply by 1000
         
         if (lastRespawn == null) {
-            renderer.text("Next Respawn: Ready", x, y, Color.GREEN);
+            renderer.text("Next Respawn: Ready", (double) x, (double) y, Color.GREEN, true);
             return;
         }
 
@@ -51,7 +53,7 @@ public class RespawnInfo extends HudElement {
         int distanceRemaining = respawnDistance - (int) distance;
         
         if (distanceRemaining <= 0) {
-            renderer.text("Next Respawn: Ready", x, y, Color.GREEN);
+            renderer.text("Next Respawn: Ready", (double) x, (double) y, Color.GREEN, true);
             return;
         }
         
@@ -65,6 +67,6 @@ public class RespawnInfo extends HudElement {
             color = Color.GREEN;
         }
         
-        renderer.text("Next Respawn: " + distanceRemaining + " blocks", x, y, color);
+        renderer.text("Next Respawn: " + distanceRemaining + " blocks", (double) x, (double) y, color, true);
     }
 }

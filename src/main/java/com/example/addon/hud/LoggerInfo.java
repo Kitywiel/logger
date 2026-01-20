@@ -13,7 +13,7 @@ public class LoggerInfo extends HudElement {
         LoggerAddon.HUD_GROUP,
         "logger-info",
         "Displays time until next Logger update.",
-        false
+        LoggerInfo::new
     );
 
     public LoggerInfo() {
@@ -27,7 +27,7 @@ public class LoggerInfo extends HudElement {
         Logger logger = Modules.get().get(Logger.class);
         
         if (logger == null || !logger.isActive()) {
-            renderer.text("Logger: Disabled", x, y, Color.GRAY);
+            renderer.text("Logger: Disabled", (double) x, (double) y, Color.GRAY, true);
             return;
         }
 
@@ -56,6 +56,6 @@ public class LoggerInfo extends HudElement {
             color = Color.GREEN;
         }
         
-        renderer.text("Next Logger: " + timeStr, x, y, color);
+        renderer.text("Next Logger: " + timeStr, (double) x, (double) y, color, true);
     }
 }
