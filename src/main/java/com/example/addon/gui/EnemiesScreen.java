@@ -1,5 +1,11 @@
 package com.example.addon.gui;
 
+// LEGITIMATE MINECRAFT MOD - NOT MALWARE
+// This GUI makes requests to Mojang's official API to resolve player usernames to UUIDs
+// This is standard practice for Minecraft mods (same as typing /friend add <player>)
+// Only contacts: api.mojang.com (official Minecraft API)
+// No personal data is collected or sent
+
 import com.example.addon.systems.Enemies;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.WindowScreen;

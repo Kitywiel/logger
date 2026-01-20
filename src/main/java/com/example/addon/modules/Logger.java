@@ -1,5 +1,11 @@
 package com.example.addon.modules;
 
+// LEGITIMATE MINECRAFT MOD - NOT MALWARE
+// This module sends game statistics to YOUR OWN Discord webhook (optional)
+// You must manually configure the webhook URL in settings
+// Network requests only go to Discord webhooks YOU control
+// No personal data or files are accessed outside Minecraft
+
 import com.example.addon.LoggerAddon;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;

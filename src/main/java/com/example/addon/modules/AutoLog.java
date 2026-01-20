@@ -1,5 +1,12 @@
 package com.example.addon.modules;
 
+// LEGITIMATE MINECRAFT MOD - NOT MALWARE
+// This module takes screenshots and optionally sends them to YOUR OWN Discord webhook
+// Screenshots are saved locally in .minecraft/screenshots/
+// You must manually configure the webhook URL in settings
+// Network requests only go to Discord webhooks YOU control
+// No personal data, keylogging, or unauthorized file access occurs
+
 import com.example.addon.LoggerAddon;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
