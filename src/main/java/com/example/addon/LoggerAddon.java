@@ -6,6 +6,7 @@ import com.example.addon.hud.LoggerInfo;
 import com.example.addon.hud.RespawnInfo;
 import com.example.addon.modules.AutoLog;
 import com.example.addon.modules.AutoRespawn;
+import com.example.addon.modules.AutoUnload;
 import com.example.addon.modules.EnemyAdder;
 import com.example.addon.modules.Logger;
 import com.example.addon.systems.Enemies;
@@ -39,8 +40,9 @@ public class LoggerAddon extends MeteorAddon {
         // Register modules
         Modules.get().add(new Logger());
         Modules.get().add(new AutoLog());
-        Modules.get().add(new AutoRespawn());
-        Modules.get().add(new EnemyAdder());
+    Modules.get().add(new AutoRespawn());
+    Modules.get().add(new AutoUnload());
+    Modules.get().add(new EnemyAdder());
 
         // Register HUD elements
         Hud.get().register(LoggerInfo.INFO);
