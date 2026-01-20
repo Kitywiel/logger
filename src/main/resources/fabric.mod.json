@@ -16,7 +16,9 @@
       "com.example.addon.LoggerAddon"
     ]
   },
-  "mixins": [],
+  "mixins": [
+    "logger-addon.mixins.json"
+  ],
   "depends": {
     "java": ">=21",
     "minecraft": "1.21.4",

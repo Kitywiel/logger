@@ -1,8 +1,8 @@
 package com.example.addon.modules;
 
+import com.example.addon.LoggerAddon;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
-import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.item.Item;
@@ -110,7 +110,16 @@ public class Logger extends Module {
     private boolean hasLastPosition = false;
 
     public Logger() {
-        super(Categories.Misc, "logger", "Logs various game information at set intervals.");
+        super(LoggerAddon.CATEGORY, "logger", "Logs various game information at set intervals.");
+    }
+
+    // Public getters for HUD
+    public int getTickCounter() {
+        return tickCounter;
+    }
+
+    public double getLogInterval() {
+        return logInterval.get();
     }
 
     @EventHandler
@@ -141,8 +150,10 @@ public class Logger extends Module {
 
         if (logCoords.get()) {
             if (!first) fields.append(",");
-            fields.append(String.format("{\"name\":\"📍 Coordinates\",\"value\":\"X: %.1f\\nY: %.1f\\nZ: %.1f\",\"inline\":true}", 
-                currentX, currentY, currentZ
+            fields.append(String.format("{\"name\":\"📍 Coordinates\",\"value\":\"X: %s\\nY: %s\\nZ: %s\",\"inline\":true}", 
+                formatCoordinate(currentX), 
+                formatCoordinate(currentY), 
+                formatCoordinate(currentZ)
             ));
             first = false;
         }
@@ -234,8 +245,21 @@ public class Logger extends Module {
     private void sendToDiscord(String fields) {
         new Thread(() -> {
             try {
+                double currentX = mc.player.getX();
+                double currentY = mc.player.getY();
+                double currentZ = mc.player.getZ();
+                
+                // Create title with coordinates
+                String title = logCoords.get() 
+                    ? String.format("⚡ Status Update - [%s, %s, %s]", 
+                        formatCoordinate(currentX), 
+                        formatCoordinate(currentY), 
+                        formatCoordinate(currentZ))
+                    : "⚡ Status Update";
+                
                 String jsonPayload = String.format(
-                    "{\"embeds\":[{\"title\":\"⚡ Status Update\",\"color\":5814783,\"fields\":[%s],\"timestamp\":\"%s\",\"footer\":{\"text\":\"Kitywiel's Addon\"}}]}", 
+                    "{\"embeds\":[{\"title\":\"%s\",\"color\":5814783,\"fields\":[%s],\"timestamp\":\"%s\",\"footer\":{\"text\":\"Kitywiel's Addon\"}}]}", 
+                    title,
                     fields,
                     java.time.Instant.now().toString()
                 );
@@ -322,6 +346,11 @@ public class Logger extends Module {
         }
         
         return gear.toString();
+    }
+
+    private String formatCoordinate(double coord) {
+        // Format coordinate with comma separators
+        return String.format("%,.1f", coord);
     }
 
     @Override
